@@ -1,21 +1,51 @@
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
+import java.nio.ByteBuffer;
 
 public class Client {
 
-    public static void main(String[] args)
-    {
-        // do things
+    private final static int taille = 512;
+
+    public static void main(String[] args) {
+        // receiveFile
+        try {
+            receiveFile(InetAddress.getByName("127.0.0.1"),69,"fichier.txt","fichier.txt");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void receiveFile(InetAddress adresse, int port, String fichierDistant, String fichierLocal)
-    {
+    private static void receiveFile(InetAddress adresse, int port, String fichierDistant, String fichierLocal){
+        // Ouverture du port
+        DatagramSocket soc = null;
+        try {
+            soc = new DatagramSocket();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
 
+        // Envoi de RRQ fichierDistant
+        ByteBuffer buffer = ByteBuffer.allocate(taille);
+        buffer.put((byte)0);
+        buffer.put((byte)1); // RRQ
+        buffer.put(fichierDistant.getBytes());
+        buffer.put((byte)0);
+        buffer.put("octet".getBytes());
+        buffer.put((byte)0);
+        buffer = buffer.slice();
+        DatagramPacket dpSend = new DatagramPacket(buffer.array(),buffer.capacity(),adresse, port);
+        System.out.println(buffer.capacity());
+
+        try {
+            soc.send(dpSend);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Fermeture du socket
+        soc.close();
     }
 
     public void sendFile(InetAddress adresse, int port, String fichierLocal)
