@@ -64,6 +64,18 @@ public class Client {
         	socket = new DatagramSocket();
         	//On fixe la durée du TimeOut à 3 secondes
         	socket.setSoTimeout(3000);
+
+        	//Emission du WRQ fichier local
+            ByteBuffer bBuffer = ByteBuffer.allocate(taille);
+            bBuffer.put((byte)0);
+            bBuffer.put((byte)2);
+            bBuffer.put(fichierLocal.getBytes());
+            bBuffer.put((byte)0);
+            bBuffer.put("octet".getBytes());
+            bBuffer.put((byte)0);
+            bBuffer = bBuffer.slice();
+            sendBytes(socket, bBuffer.array(), adresse, port, 0);
+
         	//Ouverture du fichier local
 			file = new FileInputStream(new File(fichierLocal));
 			//Lecture du fichier
