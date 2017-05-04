@@ -1,6 +1,4 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 
@@ -25,6 +23,15 @@ public class Client {
         } catch (SocketException e) {
             e.printStackTrace();
         }
+
+        // Ouverture du fichierLocal
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(fichierLocal);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
         // Envoi de RRQ fichierDistant
         ByteBuffer buffer = ByteBuffer.allocate(taille);
@@ -52,17 +59,17 @@ public class Client {
     {
         FileInputStream file = null;
         DatagramSocket socket;
-        //Buffer servant à la lecture
+        //Buffer servant ï¿½ la lecture
         byte[] buffer = new byte[512];
         //Compteur du nombre d'octets lus
         int compteur = 0;
-        //Numéro du DTG
+        //Numï¿½ro du DTG
         int noDTG = 0;
         try
         {
         	//Creation du DatagramSocket
         	socket = new DatagramSocket();
-        	//On fixe la durée du TimeOut à 3 secondes
+        	//On fixe la durï¿½e du TimeOut ï¿½ 3 secondes
         	socket.setSoTimeout(3000);
 
         	//Emission du WRQ fichier local
@@ -89,7 +96,7 @@ public class Client {
 						buf[i] = buffer[i];
 					buffer = buf;
 				}
-				//Crétaion du DTG
+				//Crï¿½taion du DTG
 				byte[] DTG = new byte[compteur + 4];
 				DTG[0] = 0;
 				DTG[1] = 3;
@@ -109,18 +116,18 @@ public class Client {
 
     }
 
-    //Envoi d'un DTG jusqu'à 3 fois, test de réception du ACK
+    //Envoi d'un DTG jusqu'ï¿½ 3 fois, test de rï¿½ception du ACK
     public static void sendBytes(DatagramSocket ds, byte[] tab, InetAddress ia, int port, int numDTG)
     {
     	DatagramPacket dp = new DatagramPacket(tab, tab.length, ia, port);
     	try
     	{
     		int i;
-    		//On essaye d'envoyer le DTG jusqu'à 3 fois si on ne reçoit aucun ACK
+    		//On essaye d'envoyer le DTG jusqu'ï¿½ 3 fois si on ne reï¿½oit aucun ACK
     		for(i = 0; i < 3; i = ACK(ds, numDTG) ? 5 : (i + 1))
     			ds.send(dp);
     		if(i == 3)
-    			System.out.println("Le DTG n°" + numDTG + " n'a pas pu être envoyé.");
+    			System.out.println("Le DTG nï¿½" + numDTG + " n'a pas pu ï¿½tre envoyï¿½.");
 		}
     	catch (IOException e1)
     	{
@@ -128,19 +135,19 @@ public class Client {
 		}
     }
 
-    //Retourne "true" à la la réception du ACK correspondant au numéro du DTG,
+    //Retourne "true" ï¿½ la la rï¿½ception du ACK correspondant au numï¿½ro du DTG,
     //		   "false" si on passe par un Timeout
     public static boolean ACK(DatagramSocket socket, int numBloc)
     {
     	DatagramPacket packet;
     	try
     	{
-    		//On reçoit jusqu'à recevoir un ACK pour le DTG voulu ou avoir un Timeout
+    		//On reï¿½oit jusqu'ï¿½ recevoir un ACK pour le DTG voulu ou avoir un Timeout
     		while(true)
     		{
 	    		packet = new DatagramPacket(new byte[512], 512);
 	    		socket.receive(packet);
-	    		//On regarde si on a reçu un ACK
+	    		//On regarde si on a reï¿½u un ACK
 	    		byte[] buffer = packet.getData();
 	    		int opCode = 0;
 	    		int no = 0;
