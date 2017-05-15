@@ -113,7 +113,6 @@ public class Client {
         {
 			e.printStackTrace();
 		}
-
     }
 
     //Envoi d'un DTG jusqu'� 3 fois, test de r�ception du ACK
