@@ -27,7 +27,7 @@ public class Client {
         new Client().sendFile(InetAddress.getByName("192.168.43.233"), 69, "fichier.txt");
     }
 
-    private int receiveFile(InetAddress adresse, int port, String fichierDistant, String fichierLocal) throws IOException {
+    public int receiveFile(InetAddress adresse, int port, String fichierDistant, String fichierLocal) throws IOException {
         // Ouverture du port
         DatagramSocket soc = new DatagramSocket();
         soc.setSoTimeout(3000);
@@ -61,8 +61,6 @@ public class Client {
                 break;
             }
 
-            //boolean erreurFaite = false;
-
             // On récupère l'opcode
             byte[] opcode = Arrays.copyOfRange(bufReceive.array(), 0, 2);
 
@@ -92,11 +90,6 @@ public class Client {
                 // On envoi un ACK avec le bon numéro de bloc
                 bufSend = ByteBuffer.allocate(taille).put(ACK).put(num).slice();
                 dpSend = new DatagramPacket(bufSend.array(), bufSend.capacity(), dpReceive.getAddress(), dpReceive.getPort());
-
-                /*if (num[1] == (byte) 2 && !erreurFaite) { // ACK(2) perdu
-                    dpSend.setPort(2000); // mauvais port
-                    erreurFaite = true;
-                }*/
 
                 soc.send(dpSend);
             }
@@ -153,7 +146,7 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Fichier envoy�");
+        System.out.println("Fichier envoy�");
     }
 
     //Envoi d'un DTG jusqu'à 3 fois, test de réception du ACK
@@ -184,7 +177,7 @@ public class Client {
             {
                 packet = new DatagramPacket(new byte[512], 512);
                 socket.receive(packet);
-                //On r�cup�re l'adresse et le port de l'emetteur
+                //On r�cup�re l'adresse et le port de l'emetteur
                 m_add = packet.getAddress();
                 m_port = packet.getPort();
                 //On regarde si on a reçu un ACK
