@@ -13,19 +13,10 @@ public class Client {
     private static final byte[] WRQ = ByteBuffer.allocate(2).put((byte) 0).put((byte) 2).slice().array();
     private static final byte[] DATA = ByteBuffer.allocate(2).put((byte) 0).put((byte) 3).slice().array();
     private static final byte[] ACK = ByteBuffer.allocate(2).put((byte) 0).put((byte) 4).slice().array();
-    //private static final byte[] ERROR = ByteBuffer.allocate(2).put((byte) 0).put((byte) 5).slice().array();
     private static final int taille = 516;
 
     private static InetAddress m_add;
     private static int m_port;
-
-    public static void main(String[] args) throws IOException {
-        // receiveFile
-        //new Client().receiveFile(InetAddress.getByName("127.0.0.1"), 69, "fichier.txt", "fichier.txt");
-
-        // sendFile
-        new Client().sendFile(InetAddress.getByName("192.168.43.233"), 69, "fichier.txt");
-    }
 
     public int receiveFile(InetAddress adresse, int port, String fichierDistant, String fichierLocal) throws IOException {
         // Ouverture du port
@@ -35,7 +26,7 @@ public class Client {
         // Ouverture du fichierLocal
         FileWriter fileWriter = null;
         try {
-            fileWriter = new FileWriter("data/"+fichierLocal);
+            fileWriter = new FileWriter("data/" + fichierLocal);
         } catch (IOException e) {
             return -1; // CrRv < 0, erreur locale (impossible d'accéder ou répertoire pour créer un fichier, le flchîer existe déjà..,).
         }
@@ -56,7 +47,7 @@ public class Client {
                 soc.receive(dpReceive);
             } catch (SocketTimeoutException e) {
                 if (fileOpen) {
-                    return 1; // CrRv > 0 erreur de tronsfert intervenue sur le serveur
+                    return 1; // CrRv > 0 erreur de transfert intervenue sur le serveur
                 }
                 break;
             }
@@ -83,7 +74,6 @@ public class Client {
                         bufferedWriter.close();
                         fileWriter.close();
                         fileOpen = false;
-                        System.out.println("Le fichier '" + fichierDistant + "' a bien été reçu");
                     }
                 }
 
@@ -101,8 +91,7 @@ public class Client {
         return 0; // CrRv = 0, le transfert s'est bien déroulé
     }
 
-    public void sendFile(InetAddress adresse, int port, String fichierLocal)
-    {
+    public void sendFile(InetAddress adresse, int port, String fichierLocal) {
         FileInputStream file = null;
         DatagramSocket socket;
         //Buffer servant à la lecture
@@ -111,8 +100,7 @@ public class Client {
         int compteur = 0;
         //Numéro du DTG
         int noDTG = 1;
-        try
-        {
+        try {
             //Creation du DatagramSocket
             socket = new DatagramSocket();
             //On fixe la durée du TimeOut à 3 secondes
@@ -123,13 +111,11 @@ public class Client {
             sendBytes(socket, bBuffer.array(), adresse, port, 0);
 
             //Ouverture du fichier local
-            file = new FileInputStream(new File("data/"+fichierLocal));
+            file = new FileInputStream(new File("data/" + fichierLocal));
             //Lecture du fichier
-            while ((compteur = file.read(buffer)) >= 0)
-            {
+            while ((compteur = file.read(buffer)) >= 0) {
                 //Lecture du fichier
-                if (compteur != buffer.length)
-                {
+                if (compteur != buffer.length) {
                     byte[] buf = new byte[compteur];
                     for (int i = 0; i < compteur; i++)
                         buf[i] = buffer[i];
@@ -137,7 +123,7 @@ public class Client {
                 }
                 //Création du DTG
                 ByteBuffer DTG = ByteBuffer.allocate(compteur + 4);
-                DTG.put(DATA).put((byte)0).put((byte)noDTG).put(buffer).slice();
+                DTG.put(DATA).put((byte) 0).put((byte) noDTG).put(buffer).slice();
                 //Envoi du fichier
                 sendBytes(socket, DTG.array(), m_add, m_port, noDTG);
                 noDTG++;
@@ -150,8 +136,7 @@ public class Client {
     }
 
     //Envoi d'un DTG jusqu'à 3 fois, test de réception du ACK
-    public static void sendBytes(DatagramSocket ds, byte[] tab, InetAddress ia, int port, int numDTG)
-    {
+    public static void sendBytes(DatagramSocket ds, byte[] tab, InetAddress ia, int port, int numDTG) {
         DatagramPacket dp = new DatagramPacket(tab, tab.length, ia, port);
         try {
             int i;
@@ -168,13 +153,11 @@ public class Client {
 
     //Retourne "true" à la la réception du ACK correspondant au numéro du DTG,
     //		   "false" si on passe par un Timeout
-    public static boolean ACK(DatagramSocket socket, int numBloc)
-    {
+    public static boolean ACK(DatagramSocket socket, int numBloc) {
         DatagramPacket packet;
         try {
             //On reçoit jusqu'à recevoir un ACK pour le DTG voulu ou avoir un Timeout
-            while (true)
-            {
+            while (true) {
                 packet = new DatagramPacket(new byte[512], 512);
                 socket.receive(packet);
                 //On r�cup�re l'adresse et le port de l'emetteur
@@ -189,12 +172,11 @@ public class Client {
                     return true;
                 else System.out.println("Erreur :\n>OP Code : " + opCode + "\n>Num : " + no);
             }
-        } catch (IOException e)
-        {
-        	//Si ce n'est pas un Timeout, on affiche la trace
-        	if(!(e instanceof SocketTimeoutException))
-        		e.printStackTrace();
-        	else System.out.println("Timeout");
+        } catch (IOException e) {
+            //Si ce n'est pas un Timeout, on affiche la trace
+            if (!(e instanceof SocketTimeoutException))
+                e.printStackTrace();
+            else System.out.println("Timeout");
             //Timeout : on retourne "false"
             return false;
         }
