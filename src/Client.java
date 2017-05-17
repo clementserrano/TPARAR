@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +29,7 @@ public class Client {
         try {
             fileWriter = new FileWriter("data/" + fichierLocal);
         } catch (IOException e) {
+        	soc.close();
             return -1; // CrRv < 0, erreur locale (impossible d'accéder ou répertoire pour créer un fichier, le flchîer existe déjà..,).
         }
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -47,7 +49,8 @@ public class Client {
                 soc.receive(dpReceive);
             } catch (SocketTimeoutException e) {
                 if (fileOpen) {
-                    return 1; // CrRv > 0 erreur de transfert intervenue sur le serveur
+                	soc.close();
+                return 1; // CrRv > 0 erreur de transfert intervenue sur le serveur
                 }
                 break;
             }
@@ -91,7 +94,7 @@ public class Client {
         return 0; // CrRv = 0, le transfert s'est bien déroulé
     }
 
-    public void sendFile(InetAddress adresse, int port, String fichierLocal) {
+    public int sendFile(InetAddress adresse, int port, String fichierLocal) {
         FileInputStream file = null;
         DatagramSocket socket;
         //Buffer servant à la lecture
@@ -100,7 +103,21 @@ public class Client {
         int compteur = 0;
         //Numéro du DTG
         int noDTG = 1;
-        try {
+
+        //Ouverture du fichier local
+        try
+        {
+			file = new FileInputStream(new File("data/" + fichierLocal));
+		}
+        catch (FileNotFoundException e1)
+        {
+			e1.printStackTrace();
+			//Erreur en local
+			return -1;
+		}
+
+        try
+        {
             //Creation du DatagramSocket
             socket = new DatagramSocket();
             //On fixe la durée du TimeOut à 3 secondes
@@ -109,13 +126,12 @@ public class Client {
             //Emission du WRQ fichier local
             ByteBuffer bBuffer = ByteBuffer.allocate(taille).put(WRQ).put(fichierLocal.getBytes()).put((byte) 0).put("octet".getBytes()).put((byte) 0).slice();
             sendBytes(socket, bBuffer.array(), adresse, port, 0);
-
-            //Ouverture du fichier local
-            file = new FileInputStream(new File("data/" + fichierLocal));
             //Lecture du fichier
-            while ((compteur = file.read(buffer)) >= 0) {
+            while ((compteur = file.read(buffer)) >= 0)
+            {
                 //Lecture du fichier
-                if (compteur != buffer.length) {
+                if (compteur != buffer.length)
+                {
                     byte[] buf = new byte[compteur];
                     for (int i = 0; i < compteur; i++)
                         buf[i] = buffer[i];
@@ -128,27 +144,30 @@ public class Client {
                 sendBytes(socket, DTG.array(), m_add, m_port, noDTG);
                 noDTG++;
             }
+            file.close();
             socket.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
+            //Erreur en ligne
+            return 1;
         }
         System.out.println("Fichier envoy�");
+        return 0;
     }
 
     //Envoi d'un DTG jusqu'à 3 fois, test de réception du ACK
-    public static void sendBytes(DatagramSocket ds, byte[] tab, InetAddress ia, int port, int numDTG) {
+    public static void sendBytes(DatagramSocket ds, byte[] tab, InetAddress ia, int port, int numDTG) throws IOException
+    {
         DatagramPacket dp = new DatagramPacket(tab, tab.length, ia, port);
-        try {
-            int i;
-            //On essaye d'envoyer le DTG jusqu'à 3 fois si on ne reçoit aucun ACK
-            for (i = 0; i < 3; i = (ACK(ds, numDTG) ? 5 : (i + 1)))
-                ds.send(dp);
-            if (i == 3)
-                System.out.println("Le DTG num " + numDTG + " n'a pas pu etre envoye.");
-            else System.out.println("Le DTG num " + numDTG + " a ete envoye.");
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
+        int i;
+        //On essaye d'envoyer le DTG jusqu'à 3 fois si on ne reçoit aucun ACK
+        for (i = 0; i < 3; i = (ACK(ds, numDTG) ? 5 : (i + 1)))
+            ds.send(dp);
+        if (i == 3)
+            System.out.println("Le DTG num " + numDTG + " n'a pas pu etre envoye.");
+        else System.out.println("Le DTG num " + numDTG + " a ete envoye.");
     }
 
     //Retourne "true" à la la réception du ACK correspondant au numéro du DTG,

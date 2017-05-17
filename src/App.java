@@ -75,18 +75,22 @@ public class App extends Application {
 
     @FXML
     public void handleSend() throws IOException {
-        /*int retour = */
-        new Client().sendFile(InetAddress.getByName(pumpkinIP.getText()), 69, fichierLocal.getText());
+        int retour = new Client().sendFile(InetAddress.getByName(pumpkinIP.getText()), 69, fichierLocal.getText());
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Envoi terminé");
         alert.setHeaderText(null);
-        /*if (retour > 0) {
-            alert.setContentText("I have a great message for you!");
-        } else if (retour < 0) {
-            alert.setContentText("I have a great message for you!");
-        } else {
-            alert.setContentText("I have a great message for you!");
-        }*/
+        if (retour > 0)
+        {
+            alert.setContentText("Erreur de transfert intervenue sur le serveur");
+        }
+        else if (retour < 0)
+        {
+            alert.setContentText("Le choix du fichier local n'est pas valide");
+        }
+        else
+        {
+            alert.setContentText("Le transfert s'est bien deroule.");
+        }
         alert.showAndWait();
     }
 
