@@ -125,7 +125,8 @@ public class Client {
 
             //Emission du WRQ fichier local
             ByteBuffer bBuffer = ByteBuffer.allocate(taille).put(WRQ).put(fichierLocal.getBytes()).put((byte) 0).put("octet".getBytes()).put((byte) 0).slice();
-            sendBytes(socket, bBuffer.array(), adresse, port, 0);
+            if(!sendBytes(socket, bBuffer.array(), adresse, port, 0))
+            	return 1;
             //Lecture du fichier
             while ((compteur = file.read(buffer)) >= 0)
             {
@@ -141,7 +142,8 @@ public class Client {
                 ByteBuffer DTG = ByteBuffer.allocate(compteur + 4);
                 DTG.put(DATA).put((byte) 0).put((byte) noDTG).put(buffer).slice();
                 //Envoi du fichier
-                sendBytes(socket, DTG.array(), m_add, m_port, noDTG);
+                if(!sendBytes(socket, DTG.array(), m_add, m_port, noDTG))
+                	return 1;
                 noDTG++;
             }
             file.close();
@@ -158,16 +160,25 @@ public class Client {
     }
 
     //Envoi d'un DTG jusqu'à 3 fois, test de réception du ACK
-    public static void sendBytes(DatagramSocket ds, byte[] tab, InetAddress ia, int port, int numDTG) throws IOException
+    public static boolean sendBytes(DatagramSocket ds, byte[] tab, InetAddress ia, int port, int numDTG)
     {
         DatagramPacket dp = new DatagramPacket(tab, tab.length, ia, port);
         int i;
         //On essaye d'envoyer le DTG jusqu'à 3 fois si on ne reçoit aucun ACK
         for (i = 0; i < 3; i = (ACK(ds, numDTG) ? 5 : (i + 1)))
-            ds.send(dp);
+        {
+        	try
+        	{
+        		ds.send(dp);
+        	}
+        	catch(Exception e)
+        	{
+        		return false;
+        	}
+        }
         if (i == 3)
-            System.out.println("Le DTG num " + numDTG + " n'a pas pu etre envoye.");
-        else System.out.println("Le DTG num " + numDTG + " a ete envoye.");
+            return true;
+        return false;
     }
 
     //Retourne "true" à la la réception du ACK correspondant au numéro du DTG,
