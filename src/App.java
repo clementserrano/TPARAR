@@ -66,7 +66,7 @@ public class App extends Application {
         if (retour > 0) {
             alert.setContentText("Erreur de transfert intervenue sur le serveur");
         } else if (retour < 0) {
-            alert.setContentText("Erreur locale (impossible d'accéder ou répertoire pour créer un fichier, le flchîer existe déjà..,)");
+            alert.setContentText("Erreur locale (impossible d'accéder ou répertoire pour créer un fichier)");
         } else {
             alert.setContentText("Le transfert s'est bien déroulé");
         }
