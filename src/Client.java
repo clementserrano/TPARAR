@@ -111,7 +111,6 @@ public class Client {
 		}
         catch (FileNotFoundException e1)
         {
-			e1.printStackTrace();
 			//Erreur en local
 			return -1;
 		}
@@ -151,11 +150,9 @@ public class Client {
         }
         catch (IOException e)
         {
-            e.printStackTrace();
             //Erreur en ligne
             return 1;
         }
-        System.out.println("Fichier envoy�");
         return 0;
     }
 
@@ -200,13 +197,10 @@ public class Client {
                 //Si on a un ACK pour le bon DTG, on retourne "true"
                 if ((opCode == 4) && (no == numBloc))
                     return true;
-                else System.out.println("Erreur :\n>OP Code : " + opCode + "\n>Num : " + no);
             }
-        } catch (IOException e) {
-            //Si ce n'est pas un Timeout, on affiche la trace
-            if (!(e instanceof SocketTimeoutException))
-                e.printStackTrace();
-            else System.out.println("Timeout");
+        }
+        catch (IOException e)
+        {
             //Timeout : on retourne "false"
             return false;
         }
