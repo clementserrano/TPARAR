@@ -151,8 +151,6 @@ public class Client {
                 if(noDTG == 65536)
                 	noDTG = 0;
                 else noDTG++;
-                if((noDTG % 256) == 0)
-                	noDTG++;
 
             }
             file.close();
