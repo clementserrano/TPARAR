@@ -81,15 +81,15 @@ public class App extends Application {
         alert.setHeaderText(null);
         if (retour > 0)
         {
-            alert.setContentText("Erreur de transfert intervenue sur le serveur");
+            alert.setContentText("Erreur de transfert intervenue sur le serveur.");
         }
         else if (retour < 0)
         {
-            alert.setContentText("Le choix du fichier local n'est pas valide");
+            alert.setContentText("Le choix du fichier local n'est pas valide.");
         }
         else
         {
-            alert.setContentText("Le transfert s'est bien deroule.");
+            alert.setContentText("Le transfert s'est bien deroulé.");
         }
         alert.showAndWait();
     }

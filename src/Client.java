@@ -125,7 +125,9 @@ public class Client {
             //Emission du WRQ fichier local
             ByteBuffer bBuffer = ByteBuffer.allocate(taille).put(WRQ).put(fichierLocal.getBytes()).put((byte) 0).put("octet".getBytes()).put((byte) 0).slice();
             if(!sendBytes(socket, bBuffer.array(), adresse, port, 0))
+            {
             	return 1;
+            }
             //Lecture du fichier
             while ((compteur = file.read(buffer)) >= 0)
             {
@@ -139,11 +141,19 @@ public class Client {
                 }
                 //Création du DTG
                 ByteBuffer DTG = ByteBuffer.allocate(compteur + 4);
-                DTG.put(DATA).put((byte) 0).put((byte) noDTG).put(buffer).slice();
+                byte[] num = Conv(noDTG);
+                DTG.put(DATA).put(num[0]).put(num[1]).put(buffer).slice();
                 //Envoi du fichier
                 if(!sendBytes(socket, DTG.array(), m_add, m_port, noDTG))
-                	return 1;
-                noDTG++;
+                {
+                	return 2;
+                }
+                if(noDTG == 65536)
+                	noDTG = 0;
+                else noDTG++;
+                if((noDTG % 256) == 0)
+                	noDTG++;
+
             }
             file.close();
             socket.close();
@@ -151,9 +161,17 @@ public class Client {
         catch (IOException e)
         {
             //Erreur en ligne
-            return 1;
+            return 3;
         }
         return 0;
+    }
+
+    protected byte[] Conv(int i)
+    {
+    	byte[] res = new byte[2];
+    	res[1] = (byte)(i & 0x000000FF);
+    	res[0] = (byte)((i & 0x0000FF00) / 256);
+    	return res;
     }
 
     //Envoi d'un DTG jusqu'à 3 fois, test de réception du ACK
@@ -174,17 +192,21 @@ public class Client {
         	}
         }
         if (i == 3)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     //Retourne "true" à la la réception du ACK correspondant au numéro du DTG,
     //		   "false" si on passe par un Timeout
-    public static boolean ACK(DatagramSocket socket, int numBloc) {
+    public static boolean ACK(DatagramSocket socket, int numBloc)
+    {
         DatagramPacket packet;
-        try {
+        boolean ack = false;
+        try
+        {
             //On reçoit jusqu'à recevoir un ACK pour le DTG voulu ou avoir un Timeout
-            while (true) {
+            while (!ack)
+            {
                 packet = new DatagramPacket(new byte[512], 512);
                 socket.receive(packet);
                 //On r�cup�re l'adresse et le port de l'emetteur
@@ -192,17 +214,25 @@ public class Client {
                 m_port = packet.getPort();
                 //On regarde si on a reçu un ACK
                 byte[] buffer = packet.getData();
-                int opCode = (buffer[0] * 128) + buffer[1];
-                int no = (buffer[2] * 128) + buffer[3];
+                int LSB = buffer[3];
+                int MSB = buffer[2];
+                if(LSB < 0)
+                	LSB = 256 + LSB;
+                if(MSB < 0)
+                	MSB = 256 + MSB;
+                int opCode = (buffer[0] * 256) + buffer[1];
+                int no = (MSB * 256) + LSB;
+                if(no < 0)
+                	no *= -1;
+            	//System.out.println(no + ", " + numBloc);
                 //Si on a un ACK pour le bon DTG, on retourne "true"
-                if ((opCode == 4) && (no == numBloc))
-                    return true;
+                ack = ((opCode == 4) && (no == numBloc));
             }
         }
         catch (IOException e)
         {
             //Timeout : on retourne "false"
-            return false;
         }
+        return ack;
     }
 }
