@@ -5,15 +5,16 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="290.0" prefWidth="484.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="App">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="229.0" prefWidth="363.0" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="App">
     <children>
-        <TextField fx:id="pumpkinIP" layoutX="212.0" layoutY="35.0" />
-        <Label layoutX="86.0" layoutY="40.0" text="IP Pumpkin" />
-        <Label layoutX="86.0" layoutY="111.0" text="Fichier local" />
-        <Label layoutX="86.0" layoutY="153.0" text="Fichier distant" />
-        <TextField fx:id="fichierLocal" layoutX="212.0" layoutY="106.0" />
-        <TextField fx:id="fichierDistant" layoutX="212.0" layoutY="148.0" />
-        <Button fx:id="recevoir" layoutX="141.0" layoutY="213.0" mnemonicParsing="false" onAction="#handleReceive" text="Recevoir" />
-        <Button fx:id="envoyer" layoutX="277.0" layoutY="213.0" mnemonicParsing="false" onAction="#handleSend" text="Envoyer" />
+        <TextField fx:id="pumpkinIP" layoutX="172.0" layoutY="25.0" />
+        <Label layoutX="46.0" layoutY="30.0" text="IP Pumpkin" />
+        <Label layoutX="46.0" layoutY="81.0" text="Fichier local" />
+        <Label layoutX="46.0" layoutY="123.0" text="Fichier distant" />
+        <TextField fx:id="fichierLocal" layoutX="172.0" layoutY="77.0" />
+        <TextField fx:id="fichierDistant" layoutX="172.0" layoutY="118.0" />
+        <Button fx:id="recevoir" layoutX="31.0" layoutY="173.0" mnemonicParsing="false" onAction="#handleReceive" prefHeight="32.0" prefWidth="74.0" text="Recevoir" />
+        <Button fx:id="envoyer" layoutX="147.0" layoutY="173.0" mnemonicParsing="false" onAction="#handleSend" prefHeight="32.0" prefWidth="74.0" text="Envoyer" />
+      <Button layoutX="259.0" layoutY="173.0" mnemonicParsing="false" onAction="#handleOpen" prefHeight="32.0" prefWidth="74.0" text="Ouvrir" />
     </children>
 </AnchorPane>

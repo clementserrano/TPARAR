@@ -10,6 +10,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -79,19 +81,19 @@ public class App extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Envoi terminé");
         alert.setHeaderText(null);
-        if (retour > 0)
-        {
+        if (retour > 0) {
             alert.setContentText("Erreur de transfert intervenue sur le serveur.");
-        }
-        else if (retour < 0)
-        {
+        } else if (retour < 0) {
             alert.setContentText("Le choix du fichier local n'est pas valide.");
-        }
-        else
-        {
+        } else {
             alert.setContentText("Le transfert s'est bien deroulé.");
         }
         alert.showAndWait();
+    }
+
+    @FXML
+    public void handleOpen() throws IOException {
+        Desktop.getDesktop().open(new File("data"));
     }
 
     public static void main(String[] args) {
